@@ -1,0 +1,42 @@
+//Define variables 
+	Variable “aws_access_key”{}
+	Variable “aws_secret_key”{}
+	Variable “private_key_path”{}
+	Variable “key_name”{}
+	Default = “PluralSightKeys”
+}
+
+
+//Define provider 
+Provider “aws”{
+Access_key = “${var.aws_access_key}”
+Access_key = “${var.aws_secret_key}”
+Region = “us-east-1”
+
+//Define Resources 
+
+Resources “aws_instance” “nginx”
+Ami  		=”ami c58c1dd3”  - amazon services machine image (using the amazon inbuilt linux image)
+Instance_type = “t2.micro ”
+Key_name        =”${var.key_name}”
+(note: the private key the user have and the public key the amazon have can be combined to make this key_name, using this key name we can SSH into the amazon instance  )
+
+
+Connection {
+User             = “ec2-user”
+Private_key = “${file(var.private_key_path)}”
+}
+
+Provisoner “remote exec” {
+Inline = [
+“sudo yum install nginx -y”,
+“sudo service nginx start”
+		]
+	}
+}
+
+
+output "aws_instance_public_dns"{
+value ="${aws_instance.nginx.public_dns}"
+
+} 
